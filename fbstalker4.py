@@ -858,27 +858,27 @@ def parsePhotosCommented(html):
 			if m:
 				filename = 'fbid_'+ m.group(1)+'.html'
 				filename = filename.replace("profile.php?id=","")
-			if not os.path.lexists(filename):
-				#html1 = downloadPage(url1)
-				html1 = downloadFile(url1)
-				print "[*] Caching Photo Page: "+m.group(1)
-				text_file = open(filename, "w")
-				text_file.write(normalize(html1))
-				text_file.close()
-			else:
-				html1 = open(filename, 'r').read()
-			soup2 = BeautifulSoup(html1)
-			username2 = soup2.find("div", {"class" : "fbPhotoContributorName"})
-			r = re.compile('href="(.*)?fref=photo"')
-			m = r.search(str(username2))
-			if m: 
-				username3 = m.group(1) 
-				username3 = username3.replace("https://www.facebook.com/","") 
-				username3 = username3.replace("?","") 
-				if username3.count('/')==2: 
-					username3 = username3.split('/')[2] 
-				print "[*] Extracting Data from Photo Page: "+username3 
-				tempList.append([str(uid),z['alt'],z['src'],i['href'],username3])
+				if not os.path.lexists(filename):
+					#html1 = downloadPage(url1)
+					html1 = downloadFile(url1)
+					print "[*] Caching Photo Page: "+m.group(1)
+					text_file = open(filename, "w")
+					text_file.write(normalize(html1))
+					text_file.close()
+				else:
+					html1 = open(filename, 'r').read()
+				soup2 = BeautifulSoup(html1)
+				username2 = soup2.find("div", {"class" : "fbPhotoContributorName"})
+				r = re.compile('href="(.*)?fref=photo"')
+				m = r.search(str(username2))
+				if m: 
+					username3 = m.group(1) 
+					username3 = username3.replace("https://www.facebook.com/","") 
+					username3 = username3.replace("?","") 
+					if username3.count('/')==2: 
+						username3 = username3.split('/')[2] 
+					print "[*] Extracting Data from Photo Page: "+username3 
+					tempList.append([str(uid),z['alt'],z['src'],i['href'],username3])
 	return tempList
 
 def sidechannelFriends(uid):
@@ -1430,7 +1430,7 @@ def mainProcess(usernames, rec):
 			tmpStr.append([normalize(i[0]),str(i[1]), normalize(i[2]), normalize(i[3]), normalize(i[4]),normalize(0)])
 	for i in fullStr2: 
 		if i[1] not in tmpStr[1:2]:
-			tmpStr.append([normalize(i[0]),str(i[1]), normalize(i[2]), normalize(i[3]), normalize(i[4]),normalize(n[5])])
+			tmpStr.append([normalize(i[0]),str(i[1]), normalize(i[2]), normalize(i[3]), normalize(i[4]),normalize(i[5])])
 	write2Database('metadata',tmpStr)
 	driver.close() 
 	driver.quit 
