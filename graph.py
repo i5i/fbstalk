@@ -24,6 +24,7 @@ import time,re,sys
 import datetime
 from bs4 import BeautifulSoup
 from StringIO import StringIO
+from numpy import append
 
 
 
@@ -48,20 +49,27 @@ def createGraphML():
 	c = conn.cursor()
 	c.execute('select distinct source from graphdata')
 	dataList = c.fetchall() 
-	
+	gnodes=[]
+ 	
 	for i in dataList:
 		 i=str(i)
 		 i = i.replace("(u'","").replace("',)","") 
-		 c.execute('select distinct dest from graphdata where source=?', (i,))
+		 c.execute('select distinct dest from graphdata where source=?', (i))
 		 relate=c.fetchall()
-		 if not i in g.nodes(): 
-		 	g.add_node(i)
+ 		 if not i in gnodes: 
+ 		 	g.add_node(i)
+ 		 	gnodes.append(i)
+ 		 	
 		 for e in relate: 
-		 	e=str(e) 
-		 	e = e.replace("(u'","").replace("',)","")  
-		 	if not e in g.nodes(): 
-		 		g.add_node(e)
-		 	g.add_edge_by_label(i, e)
+ 		 	e=str(e) 
+ 		 	e = e.replace("(u'","").replace("',)","")  
+ 		 	if not e in gnodes: 
+ 		 		g.add_node(e)
+ 		 		gnodes.append(e)
+#  		 	edges2.append(i)
+#  		 	edges2.append(e) 
+#  		 	if edges2.count(e) > 1: 
+ 		 	g.add_edge_by_label(i, e)
 
 	
 	parser = GraphMLParser() 
@@ -69,49 +77,57 @@ def createGraphML():
 	g2 = Graph()
 	c.execute('select distinct source from graphdata2')
 	dataList = c.fetchall() 
+	g2nodes=[] 
+	edges2=[]
 	
 	for i in dataList:
 		 i=str(i)
 		 i = i.replace("(u'","").replace("',)","") 
-		 c.execute('select distinct dest from graphdata2 where source=?', (i,))
-		 relate=c.fetchall()
-		 if not i in g2.nodes(): 
-		 	g2.add_node(i)
-		 for e in relate: 
-		 	e=str(e) 
-		 	e = e.replace("(u'","").replace("',)","")  
-		 	if not e in g2.nodes(): 
-		 		g2.add_node(e)
-		 	g2.add_edge_by_label(i, e)
-	
-	overlap=0
-	overlap2=0
-	gnodes=[]
-	g2nodes=[] 
-	for i in g2.nodes():
-		g2nodes.append(i['label'])
-	for d in g.nodes():
-		gnodes.append(d['label'])
-		if d['label'] in g2nodes:
+ 		 c.execute('select distinct dest from graphdata2 where source=?', (i,))
+  		 relate=c.fetchall()
+ 		 if not i in g2nodes: 
+ 		 	g2.add_node(i)
+ 		 	g2nodes.append(i)
+ 		 for e in relate: 
+ 		 	e=str(e) 
+ 		 	e = e.replace("(u'","").replace("',)","")  
+ 		 	if not e in g2nodes: 
+ 		 		g2.add_node(e)
+ 		 		g2nodes.append(e)
+#  		 	edges2.append(i)
+#  		 	edges2.append(e) 
+#  		 	if edges2.count(e) > 1: 
+ 		 	g2.add_edge_by_label(i, e)
+ 	overlap=0
+ 	overlap2=0
+
+#  	g2nodes=[] 
+#  	for i in g2.nodes():
+#  		g2nodes.append(i['label'])
+  	for d in gnodes:
+		if d in g2nodes:
  			overlap+=1  
- 	print "Nodes1: "+str(len(g.nodes()))
- 	print "Nodes2: "+str(len(g2.nodes()))
- 	print "Overlap: "+str(overlap)
-	c.execute('select * from graphdata2')
+ 
+	print "Nodes1: "+str(len(g.nodes()))
+	print "Nodes2: "+str(len(g2.nodes()))
+	print "Overlap: "+str(overlap)
+
+ 	c.execute('select * from graphdata2')
 	dataList = c.fetchall() 
-	c.execute('select * from graphdata')
-	dataList2= c.fetchall() 
-	print "Edges1: "+str(len(dataList))
-	print "Edges2: "+str(len(dataList2))
-	for i in dataList:
-		if i in dataList2: 
-			overlap2+=1 
-	print "Edge overlap: "+str(overlap2)
+ 	c.execute('select * from graphdata')
+ 	dataList2= c.fetchall() 
+ 	print "Edges1: "+str(len(dataList))
+ 	print "Edges2: "+str(len(dataList2))
+# 	for i in dataList:
+# 		if i in dataList2: 
+# 			overlap2+=1 
+# 	print "Edge overlap: "+str(overlap2)
+
 	keywords = open("keywords.txt", "r").read()
 	keywords= keywords.split(" ")
-	c.execute('select distinct  username from txt')
+	c.execute('select distinct username from txt')
 	dataList3= c.fetchall()
-	
+ 	
 	for username in dataList3:
 		count=0
 		username=str(username)
@@ -125,23 +141,23 @@ def createGraphML():
 		for key in keywords: 
 			key=key.replace("\n","")
 			for txt in text_file: 
-				if key in txt.lower(): 
+				if key.lower() in txt.lower(): 
 					count+=1 
 		for node in g2.nodes():
 			if node['label']== username: 
 				node['count']=count  
-		for node in g.nodes():
-			if node['label']== username: 
-				node['count']=count  
-				
-    	parser.write(g, "myGraph.graphml") 
+# 		for node in g.nodes():
+# 			if node['label']== username: 
+# 				node['count']=count  
+# 				
+#     	parser.write(g, "myGraph.graphml") 
     	parser.write(g2, "myGraph2.graphml") 
-    	
-	text=open("myGraph.graphml",'r').read()
-	text=text.replace('attr.name="count"', 'attr.name="count" for="node"')
-	text=text.replace('attr.type="string" id="count"', 'attr.type="integer" id="count"')
-	open("myGraph.graphml",'w').write(text)
-
+#     	
+# 	text=open("myGraph.graphml",'r').read()
+# 	text=text.replace('attr.name="count"', 'attr.name="count" for="node"')
+# 	text=text.replace('attr.type="string" id="count"', 'attr.type="integer" id="count"')
+# 	open("myGraph.graphml",'w').write(text)
+# 
 	text=open("myGraph2.graphml",'r').read()
 	text=text.replace('attr.name="count"', 'attr.name="count" for="node"')
 	text=text.replace('attr.type="string" id="count"', 'attr.type="integer" id="count"')
