@@ -64,9 +64,9 @@ def mainProcess(usernames):
 		for username in usernames:
 			if len(username) is not 0: 
 				username=username.strip()
-				time1=time.clock() 
+				time1=time.time() 
 				s, size, genstr =module.Produce.produce(username, driver) 
-				time2=time.clock()
+				time2=time.time()
 				list=[username, s]
 				list2=[s, username, size, time2-time1 ,'0','0', genstr]
 				userdata.append(list)
