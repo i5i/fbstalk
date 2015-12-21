@@ -78,7 +78,7 @@ def produce(username, driver):
 	uid = convertUser2ID2(html,username)
 	if not uid:
 		print "[!] Problem converting username to uid"
-		return (0,0)
+		return (0,0,0)
 	else:
 		print "[*] Uid:\t"+str(uid)
 		
