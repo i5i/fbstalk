@@ -1,4 +1,4 @@
-import sys, os, time
+import sys, os, time, random
 
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -16,7 +16,7 @@ def downloadFriends2(driver,userid):
         lenOfPage = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
         match=False
         while(match==False):
-                time.sleep(2)
+                time.sleep(random.randint(2, 5))
                 lastCount = lenOfPage
                 lenOfPage = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
                 if lastCount==lenOfPage:
@@ -25,7 +25,6 @@ def downloadFriends2(driver,userid):
     
 def downloadFriends(driver, username): 
     downloadsize=0
-
     #Friendslist
     filename = os.path.realpath('.')+"/data/"+username+"/"+username+'_friends.htm'
     print filename

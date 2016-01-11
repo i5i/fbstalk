@@ -4,11 +4,13 @@ def createDatabase():
 	conn = sqlite3.connect('facebook.db')
 	c = conn.cursor()
 	sql1 = 'create table if not exists graphdata (high TEXT, low TEXT)' 
-	sql2 = 'create table if not exists metadata (UID TEXT, username TEXT unique, datainbytes TEXT, speed TEXT, friendcount TEXT, posts TEXT, bio TEXT)'
+	sql2 = 'create table if not exists metadata (UID TEXT, username TEXT unique, datainbytes TEXT, speed TEXT, friendcount TEXT, posts TEXT, bio TEXT, timestamp TEXT)'
 	sql3 = 'create table if not exists txt (username TEXT unique, UID TEXT)'
+	sql4 = 'create table if not exists posts (username TEXT unique, size TEXT, time TEXT, timestamp TEXT)'
 	c.execute(sql1)
 	c.execute(sql2)
 	c.execute(sql3)
+	c.execute(sql4)
 	conn.commit()
 
 def write2Database(dbName,dataList, conn):
@@ -30,10 +32,24 @@ def write2Database(dbName,dataList, conn):
 					conn.commit()
 				except sqlite3.IntegrityError:
 					continue
-		if numOfColumns==7:
+		if numOfColumns==3:
 			for i in dataList:
 				try:
-					c.execute('INSERT INTO '+dbName+' VALUES (?,?,?,?,?,?,?)', i)
+					c.execute('INSERT INTO '+dbName+' VALUES (?,?,?)', i)
+					conn.commit()
+				except sqlite3.IntegrityError:
+					continue
+		if numOfColumns==4:
+			for i in dataList:
+				try:
+					c.execute('INSERT INTO '+dbName+' VALUES (?,?,?,?)', i)
+					conn.commit()
+				except sqlite3.IntegrityError:
+					continue
+		if numOfColumns==8:
+			for i in dataList:
+				try:
+					c.execute('INSERT INTO '+dbName+' VALUES (?,?,?,?,?,?,?,?)', i)
 					conn.commit()
 				except sqlite3.IntegrityError:
 					continue
@@ -59,6 +75,11 @@ def edit2(username, count, conn):
 	userList = []
 	c = conn.cursor() 
 	c.execute('UPDATE metadata SET posts=? where username=?',(str(count),str(username),))
+
+def edit3(username, size, conn):
+	userList = []
+	c = conn.cursor() 
+	c.execute('UPDATE posts SET size=? where username=?',(str(size),str(username),))
 	
 def getUID(username, conn):
 	userList = []

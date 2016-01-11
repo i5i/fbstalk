@@ -7,7 +7,7 @@ import requests
 import sqlite3
 import module.Database
 import module.Produce 
-
+ 
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support.ui import WebDriverWait
@@ -29,7 +29,6 @@ sys.setdefaultencoding('utf8')
 module.Database.createDatabase()
 conn = sqlite3.connect('facebook.db')
 conn.text_factory = str
-
 def loginFacebook(driver, fbun):
 	driver.implicitly_wait(120)
  	driver.get("https://www.facebook.com/")
@@ -45,7 +44,7 @@ def loginFacebook(driver, fbun):
  
 def mainProcess(usernames):
 #NUMBER OF FB ACCOUNTS
-	fbct=14
+	fbct=8
 	print "Processing "+str(len(usernames)-1)+" usernames"
 	overlap=module.Database.getUsernames(usernames, conn)
 	print str(overlap)+ " records already exist"
@@ -55,30 +54,24 @@ def mainProcess(usernames):
 		timeread=time.time()
 	 	time0=time.clock()
 		userdata=[]
-		userdata2=[]
 		driverct=0
 		userct=0
 		for username in usernames:
 			if len(username) is not 0: 
 				username=username.strip()
 				time1=time.time() 
-				s, size, genstr,w =module.Produce.produce(username, driver) 
+				size, w =module.Produce.produceYr(username, driver) 
 				time2=time.time()
 				ts = time.time() 
 				st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
 				print st
-				list=[username, s]
-				list2=[s, username, size, time2-time1 ,'0','0', genstr, st]
-				if size 
+				list=[username, size, time2-time1, st]
 				userdata.append(list)
-				userdata2.append(list2)
-				module.Database.write2Database("txt", userdata, conn)
-	 			module.Database.write2Database("metadata", userdata2, conn)
-	 			userdata=[]
-	 			userdata2=[]
-	 			if w==True: 
+				module.Database.write2Database("posts", userdata, conn)
+				userdata=[]
+				if w==True: 
 	 				userct+=1
-	 			if userct==6: 
+	 			if userct==3: 
 	 				driver.close() 
 	 				driver.quit 
 	 				driver = webdriver.Chrome(chrome_options=chrome_options) 
@@ -94,7 +87,7 @@ def mainProcess(usernames):
 	 	print time3-time0
 	 	print timeread
  		driver.close() 
- 	 	driver.quit
+ 	 	driver.quit 
  	conn.close() 
 	print "Done"
 
