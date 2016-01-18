@@ -44,7 +44,7 @@ def loginFacebook(driver, fbun):
  
 def mainProcess(usernames):
 #NUMBER OF FB ACCOUNTS
-	fbct=8
+	fbct=len(facebook_usernames)
 	print "Processing "+str(len(usernames)-1)+" usernames"
 	overlap=module.Database.getUsernames(usernames, conn)
 	print str(overlap)+ " records already exist"
