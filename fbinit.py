@@ -45,7 +45,7 @@ def loginFacebook(driver, fbun):
  
 def mainProcess(usernames):
 #NUMBER OF FB ACCOUNTS
-	fbct=14
+	fbct=len(facebook_usernames)
 	print "Processing "+str(len(usernames)-1)+" usernames"
 	overlap=module.Database.getUsernames(usernames, conn)
 	print str(overlap)+ " records already exist"
@@ -69,7 +69,6 @@ def mainProcess(usernames):
 				print st
 				list=[username, s]
 				list2=[s, username, size, time2-time1 ,'0','0', genstr, st]
-				if size 
 				userdata.append(list)
 				userdata2.append(list2)
 				module.Database.write2Database("txt", userdata, conn)
